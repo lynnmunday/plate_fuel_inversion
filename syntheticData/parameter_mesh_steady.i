@@ -1,11 +1,12 @@
+output_name = 'mesh_1x1x1'
 [Mesh]
   [gmg]
     #fuel and liner
     type = GeneratedMeshGenerator
     dim = 3
-    nx=10
-    ny=3
-    nz=1
+    nx = 1
+    ny = 1
+    nz = 1
     xmin = 0.0094615
     xmax = 0.0920115
     ymin = 0.003175
@@ -18,22 +19,45 @@
 []
 
 [Problem]
-  solve=false
+  solve = false
 []
 
 [AuxVariables]
-  [source]
+  [source_node]
     order = FIRST
     family = LAGRANGE
+  []
+  [source_elem]
+    order = CONSTANT
+    family = MONOMIAL
+  []
+  [volume]
+    order = CONSTANT
+    family = MONOMIAL
   []
 []
 
 [AuxKernels]
+  [source_node]
+    type = FunctionAux
+    variable = source_node
+    function = source
+  []
+  [source_elem]
+    type = FunctionAux
+    variable = source_elem
+    function = source
+  []
+  [volume_aux]
+    type = VolumeAux
+    variable = volume
+  []
+[]
+
+[Functions]
   [source]
-    type = ParsedAux
-    variable = source
-    expression = 'x*y*80e12' #80000e6 #'x*y*40e12'
-    use_xyzt = true
+    type = ParsedFunction
+    expression = 'x*y*80e12'
   []
 []
 
@@ -41,10 +65,15 @@
 []
 
 [VectorPostprocessors]
-  [source_vec]
+  [source_node]
     type = NodalValueSampler
     sort_by = id
-    variable = source
+    variable = source_node
+  []
+  [source_elem]
+    type = ElementValueSampler
+    sort_by = id
+    variable = source_elem
   []
 []
 
@@ -55,4 +84,5 @@
 [Outputs]
   csv = true
   exodus = true
+  file_base = ${output_name}
 []
