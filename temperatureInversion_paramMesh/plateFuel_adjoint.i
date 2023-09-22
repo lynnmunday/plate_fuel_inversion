@@ -1,4 +1,4 @@
-#all blocks common to forward and adjoint problems.
+parameter_mesh_size=1x1x1
 
 [Mesh]
   [read_plate_mesh]
@@ -148,7 +148,7 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
     type = ParameterMeshFunction
     family = MONOMIAL
     order = CONSTANT
-    exodus_mesh = '${measurementDir}/mesh_1x1x1.e'
+    exodus_mesh = '${measurementDir}/mesh_${parameter_mesh_size}.e'
     parameter_name = params_fuel/source
   []
 []

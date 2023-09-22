@@ -1,4 +1,4 @@
-# Simulation set-up in common_blocks.i
+parameter_mesh_size=1x1x1
 
 [Mesh]
   [read_plate_mesh]
@@ -136,14 +136,6 @@
     type = ConstantReporter
     real_vector_names = 'source'
     real_vector_values = '0' # Dummy
-    # '40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12
-    # 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12
-    # 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12
-    # 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12
-    # 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12
-    # 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12
-    # 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12
-    # 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12 40e12'
   []
 []
 measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/syntheticData'
@@ -152,7 +144,7 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
     type = ParameterMeshFunction
     family = MONOMIAL
     order = CONSTANT
-    exodus_mesh = '${measurementDir}/mesh_1x1x1.e'
+    exodus_mesh = '${measurementDir}/mesh_${parameter_mesh_size}.e'
     parameter_name = params_fuel/source
   []
 []

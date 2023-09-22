@@ -1,7 +1,8 @@
 #
 # Plate fuel example problem.
 #
-output_name = 'results_1x1x1'
+input_mesh='4x2x1'
+
 [GlobalParams]
   order = FIRST
   family = LAGRANGE
@@ -58,14 +59,14 @@ output_name = 'results_1x1x1'
     type = ParameterMeshFunction
     family = MONOMIAL
     order = CONSTANT
-    exodus_mesh = mesh_1x1x1.e
+    exodus_mesh = mesh_${input_mesh}.e
     parameter_name = src_vec/source_elem
   []
 []
 [VectorPostprocessors]
   [src_vec]
     type = CSVReader
-    csv_file = mesh_1x1x1_source_elem_0001.csv
+    csv_file = mesh_${input_mesh}_source_elem_0001.csv
   []
 []
 #-------------------------------------------------------------
@@ -257,7 +258,7 @@ output_name = 'results_1x1x1'
 []
 
 [Outputs]
-  file_base = ${output_name}
+  file_base = results_${input_mesh}
   csv = true
   exodus = true
 []

@@ -1,11 +1,11 @@
-output_name = 'mesh_1x1x1'
+output_name = 'mesh_4x2x1'
 [Mesh]
   [gmg]
     #fuel and liner
     type = GeneratedMeshGenerator
     dim = 3
-    nx = 1
-    ny = 1
+    nx = 4
+    ny = 2
     nz = 1
     xmin = 0.0094615
     xmax = 0.0920115

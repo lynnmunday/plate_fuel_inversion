@@ -1,3 +1,5 @@
+parameter_mesh_size=4x2x1
+
 [Optimization]
 []
 
@@ -5,10 +7,10 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
 [OptimizationReporter]
   type = ParameterMeshOptimization
   parameter_names = 'source_elem'
-  parameter_meshes = '${measurementDir}/mesh_1x1x1.e'
+  parameter_meshes = '${measurementDir}/mesh_${parameter_mesh_size}.e'
   parameter_families = 'MONOMIAL'
   parameter_orders = 'CONSTANT'
-  measurement_file = '${measurementDir}/results_1x1x1_disp_all_0001.csv'
+  measurement_file = '${measurementDir}/results_${parameter_mesh_size}_disp_all_0001.csv'
   constant_group_initial_condition = 50000
   file_xcoord = 'x'
   file_ycoord = 'y'
@@ -43,11 +45,13 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
     type = FullSolveMultiApp
     input_files = plateFuel_forward.i
     execute_on = "FORWARD"
+    cli_args = parameter_mesh_size=${parameter_mesh_size}
   []
   [adjoint]
     type = FullSolveMultiApp
     input_files = plateFuel_adjoint.i
     execute_on = "ADJOINT"
+    cli_args = parameter_mesh_size=${parameter_mesh_size}
   []
 []
 
