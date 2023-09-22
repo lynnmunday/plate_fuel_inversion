@@ -61,7 +61,7 @@
     type = ADConvectiveHeatFluxBC
     variable = temperature
     boundary = front
-    T_infinity = 355
+    T_infinity = 0
     heat_transfer_coefficient = 90000
     extra_vector_tags = 'flux_tag'
   []
@@ -69,7 +69,7 @@
     type = ADConvectiveHeatFluxBC
     variable = temperature
     boundary = back
-    T_infinity = 325
+    T_infinity = 0
     heat_transfer_coefficient = 40000
     extra_vector_tags = 'flux_tag'
   []
@@ -146,25 +146,5 @@
     param_vector_name = 'params_fuel/source'
   []
 []
-##--------- Outputs ------------------#
-[VectorPostprocessors]
-  [disp_all]
-    type = NodalValueSampler
-    sort_by = id
-    boundary = front
-    variable = 'temperature'
-  []
-  [disp_top]
-    type = LineValueSampler
-    start_point = '0.0 0.0127 0.0007'
-    end_point = '0.101 0.0127 0.0007'
-    num_points = 20
-    sort_by = id
-    variable = 'temperature'
-  []
-[]
 
-[Outputs]
-  csv = true
-  exodus = true
-[]
+

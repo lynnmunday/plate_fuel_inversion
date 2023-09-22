@@ -1,5 +1,3 @@
-#all blocks common to forward and adjoint problems.
-
 [Mesh]
   [read_plate_mesh]
     type = FileMeshGenerator
@@ -8,7 +6,7 @@
 []
 
 [Problem]
-  extra_tag_vectors = 'flux_tag heatSource_tag'
+  extra_tag_vectors = 'flux_tag'
 []
 
 [AuxVariables]
@@ -16,20 +14,9 @@
     order = FIRST
     family = LAGRANGE
   []
-  [heatSource_tag]
-    order = FIRST
-    family = LAGRANGE
-  []
 []
 
 [AuxKernels]
-  [heatSource]
-    type = TagVectorAux
-    variable = heatSource_tag
-    v = temperature
-    vector_tag = heatSource_tag
-    execute_on = timestep_end
-  []
   [flux]
     type = TagVectorAux
     variable = flux_tag
@@ -41,17 +28,12 @@
 
 [Variables]
   [temperature]
-    initial_condition = 0
   []
 []
 
 [Kernels]
-  # [heat]
-  #   type = HeatConduction
-  #   variable = temperature
-  # []
   [heat_conduction]
-    type = MatDiffusion
+    type = ADMatDiffusion
     variable = temperature
     diffusivity = thermal_conductivity
   []
@@ -59,7 +41,7 @@
 
 [BCs]
   [conv_BC_front]
-    type = ConvectiveHeatFluxBC
+    type = ADConvectiveHeatFluxBC
     variable = temperature
     boundary = front
     T_infinity = 0
@@ -67,7 +49,7 @@
     extra_vector_tags = 'flux_tag'
   []
   [conv_BC_back]
-    type = ConvectiveHeatFluxBC
+    type = ADConvectiveHeatFluxBC
     variable = temperature
     boundary = back
     T_infinity = 0
@@ -79,15 +61,17 @@
 [Materials]
   # fuel properties
   [fuel_thermal]
-    type = HeatConductionMaterial
+    type = ADGenericConstantMaterial
+    prop_names =thermal_conductivity
+    prop_values = 17.6
     block = 'fuel liner'
-    thermal_conductivity = 17.6
   []
   # cladding properties
   [clad_thermal]
-    type = HeatConductionMaterial
-    block = cladding
-    thermal_conductivity = 175
+    type = ADGenericConstantMaterial
+    prop_names =thermal_conductivity
+    prop_values = 175
+    block = 'cladding'
   []
 []
 
@@ -133,13 +117,14 @@
     y_coord_name = misfit/measurement_ycoord
     z_coord_name = misfit/measurement_zcoord
     value_name = misfit/misfit_values
+    # weight_name = misfit/weighted_temperature
   []
 []
 
 [Reporters]
   [misfit]
     type = OptimizationData
-    # variable_weight_names = 'weight_disp_x'
+    # variable_weight_names = 'weighted_temperature'
   []
   [params_fuel]
     type = ConstantReporter
@@ -162,6 +147,22 @@
     type = ElementOptimizationSourceFunctionInnerProduct
     variable = temperature
     function = src_fuel_function
+    block = 'fuel liner'
+  []
+[]
+
+[Materials]
+  [adjoint_mat]
+    type = ParsedMaterial
+    property_name = adjoint_mat
+    expression = temperature
+    coupled_variables = temperature
+  []
+[]
+[Postprocessors]
+  [adjoint_integ]
+    type = ElementIntegralMaterialProperty
+    mat_prop = adjoint_mat
     block = 'fuel liner'
   []
 []

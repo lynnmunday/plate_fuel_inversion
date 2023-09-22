@@ -34,6 +34,7 @@ output_name = 'results_1x1x1'
     family = LAGRANGE
   []
 []
+
 [AuxKernels]
   [heatSource]
     type = TagVectorAux
@@ -227,12 +228,23 @@ output_name = 'results_1x1x1'
 []
 
 #--------- Output synthetic measurement data
+[AuxVariables/weighted_temperature]
+[]
+[AuxKernels]
+  [weighted_temp]
+    type = ParsedAux
+    expression = temperature*1e3
+    variable = weighted_temperature
+    coupled_variables = temperature
+  []
+[]
+
 [VectorPostprocessors]
   [disp_all]
     type = NodalValueSampler
     sort_by = id
     boundary = front
-    variable = 'disp_x disp_y disp_z temperature'
+    variable = 'disp_x disp_y disp_z temperature weighted_temperature'
   []
   [disp_top]
     type = LineValueSampler
@@ -240,7 +252,7 @@ output_name = 'results_1x1x1'
     end_point = '0.101 0.0127 0.0007'
     num_points = 20
     sort_by = id
-    variable = 'disp_x disp_y disp_z temperature'
+    variable = 'disp_x disp_y disp_z temperature weighted_temperature'
   []
 []
 
