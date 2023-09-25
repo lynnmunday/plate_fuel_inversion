@@ -21,8 +21,11 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
    ##--Hessian
    tao_solver = taonls
    petsc_options_iname = '-tao_gatol -tao_grtol -tao_nls_pc_type -tao_nls_ksp_type'
-  #  petsc_options_value = '1e-8 1e-16 none cg'
    petsc_options_value = '1e-8 1e-16 none cg'
+
+  #  tao_solver = taontr #taonls
+  #  petsc_options_iname = '-tao_max_it -tao_gatol -tao_grtol -tao_ntr_pc_type -tao_ntr_ksp_type'
+  #  petsc_options_value = '3 1e-8 1e-16 none stcg'
   ##--gradient bounded quasiNewtonKrylov Trust Region
   # tao_solver = taobqnktr
   # petsc_options_iname = '-tao_gatol -tao_grtol'
@@ -109,7 +112,7 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
     # HESSIAN transfers.  Same as forward.
     [toHomoForward]
       type = MultiAppReporterTransfer
-      to_multi_app = forward
+      to_multi_app = homogeneousForward
       from_reporters = 'OptimizationReporter/measurement_xcoord
                         OptimizationReporter/measurement_ycoord
                         OptimizationReporter/measurement_zcoord
@@ -125,7 +128,7 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
     []
     [fromHomoForward]
       type = MultiAppReporterTransfer
-      from_multi_app = forward
+      from_multi_app = homogeneousForward
       from_reporters = 'measure_data/simulation_values'
       to_reporters = 'OptimizationReporter/simulation_values'
     []
