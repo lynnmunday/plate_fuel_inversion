@@ -1,4 +1,4 @@
-parameter_mesh_size = 1x1x1
+parameter_mesh_size = 4x2x1
 
 [Optimization]
 []
@@ -22,9 +22,9 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
   type = Optimize
   verbose = true
   ##--Hessian
-  tao_solver = taonls
-  petsc_options_iname = '-tao_gatol -tao_grtol -tao_nls_pc_type -tao_nls_ksp_type'
-  petsc_options_value = '1e-8 1e-16 none cg'
+  # tao_solver = taonls
+  # petsc_options_iname = '-tao_gatol -tao_grtol -tao_nls_pc_type -tao_nls_ksp_type'
+  # petsc_options_value = '1e-8 1e-16 none cg'
 
   #  tao_solver = taontr #taonls
   #  petsc_options_iname = '-tao_max_it -tao_gatol -tao_grtol -tao_ntr_pc_type -tao_ntr_ksp_type'
@@ -34,9 +34,9 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
   # petsc_options_iname = '-tao_gatol -tao_grtol'
   # petsc_options_value = '1e-8 1e-16'
   #--gradient lmvm
-  # tao_solver = taolmvm
-  # petsc_options_iname = '-tao_max_it -tao_gttol -tao_grtol -tao_ls_type'# -tao_fd_gradient -tao_fd_delta'
-  # petsc_options_value = '50           1e-5       1e-16      armijo'#       true             1e3'
+  tao_solver = taolmvm
+  petsc_options_iname = '-tao_max_it -tao_gttol -tao_grtol -tao_ls_type'# -tao_fd_gradient -tao_fd_delta'
+  petsc_options_value = '50           1e-5       1e-16      armijo'#       true             1e3'
   ##--gradient cg
   # tao_solver = taobncg
   # petsc_options_iname = '-tao_max_it -tao_gatol -tao_grtol -tao_ls_type'
