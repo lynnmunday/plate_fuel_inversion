@@ -193,7 +193,7 @@ parameter_mesh_size='4x2x1'
     type = ElementOptimizationSourceFunctionInnerProduct
     variable = temperature
     function = src_fuel_function
-    block = 'fuel'
+    block = 'fuel liner'
   []
 []
 

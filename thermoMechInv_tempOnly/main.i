@@ -38,9 +38,9 @@ parameter_mesh_size = 4x2x1
 #  petsc_options_value = '50           1e-5       1e-16      armijo'#       true             1e3'
 
 #-gradient check
-  tao_solver = taolmvm
-  petsc_options_iname = '-tao_max_it -tao_grtol -tao_ls_type -tao_fd_test -tao_test_gradient -tao_fd_gradient'# -tao_fd_delta'
-  petsc_options_value = '1 1e-16 unit true true false' # 1e3'
+  tao_solver = taobncg
+  petsc_options_iname = '-tao_max_it -tao_grtol -tao_ls_type -tao_fd_test -tao_test_gradient -tao_fd_gradient -tao_fd_delta'
+  petsc_options_value = '1 1e-16 unit true true false 1e3'
   petsc_options = '-tao_test_gradient_view'
 []
 

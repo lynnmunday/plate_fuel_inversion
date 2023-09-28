@@ -38,7 +38,7 @@ parameter_mesh_size='4x2x1'
     type = HeatSource
     function = src_fuel_function
     variable = temperature
-    block = 'fuel'
+    block = 'fuel liner'
   []
 []
 
