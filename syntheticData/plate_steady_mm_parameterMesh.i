@@ -1,7 +1,7 @@
 #
 # Plate fuel example problem.
 #
-mesh_size='4x2x1'
+mesh_size='1x1x1'
 
 [GlobalParams]
   order = FIRST
@@ -231,7 +231,16 @@ mesh_size='4x2x1'
 []
 
 #--------- Output synthetic measurement data
-[AuxVariables/weighted_disp_z]
+[AuxVariables]
+  [weighted_disp_z]
+    family = LAGRANGE
+    order =FIRST
+  []
+  [weight]
+    family = LAGRANGE
+    order =FIRST
+    initial_condition = 1e3
+  []
 []
 [AuxKernels]
   [weighted_disp_z]
@@ -247,7 +256,7 @@ mesh_size='4x2x1'
     type = NodalValueSampler
     sort_by = id
     boundary = front
-    variable = 'disp_x disp_y disp_z temperature weighted_disp_z'
+    variable = 'disp_x disp_y disp_z temperature weighted_disp_z weight'
   []
   [disp_top]
     type = LineValueSampler
@@ -255,12 +264,12 @@ mesh_size='4x2x1'
     end_point = '101 12.7 0.7'
     num_points = 20
     sort_by = id
-    variable = 'disp_x disp_y disp_z temperature weighted_disp_z'
+    variable = 'disp_x disp_y disp_z temperature weighted_disp_z weight'
   []
 []
 
 [Outputs]
-  file_base = AD_results_${mesh_size}
+  file_base = results_${mesh_size}
   csv = true
   exodus = true
 []
