@@ -2,7 +2,7 @@ parameter_mesh_size = 1x1x1
 [Mesh]
   [read_plate_mesh]
     type = FileMeshGenerator
-    file = plate_steady_mm_in.e
+    file = ../plate_steady_mm_in.e
   []
 []
 

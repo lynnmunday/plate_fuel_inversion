@@ -1,7 +1,7 @@
 [Mesh]
   [read_plate_mesh]
     type = FileMeshGenerator
-    file = plate_steady_mm_in.e
+    file = ../plate_steady_mm_in.e
   []
 []
 
