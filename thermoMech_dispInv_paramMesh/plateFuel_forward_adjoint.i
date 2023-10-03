@@ -200,8 +200,8 @@ parameter_mesh_size = 1x1x1
 [Reporters]
   [measure_data]
     type = OptimizationData
-    variable = T #'u_z'
-    # variable_weight_names = weight
+    variable = 'u_z'#temperature inversion, change to T
+    variable_weight_names = weight #remove for T
   []
   [params_fuel]
     type = ConstantReporter
@@ -223,19 +223,19 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
 [DiracKernels]
   [adjointLoad_T]
     type = ReporterPointSource
-    variable = lam_T #lam_z
+    variable = lam_z #temperature inversion, change to lam_T
     x_coord_name = measure_data/measurement_xcoord
     y_coord_name = measure_data/measurement_ycoord
     z_coord_name = measure_data/measurement_zcoord
     value_name = measure_data/misfit_values
-    # weight_name = measure_data/weight
+    weight_name = measure_data/weight #remove for T
   []
 []
 
 [VectorPostprocessors]
   [grad_src_fuel]
     type = ElementOptimizationSourceFunctionInnerProduct
-    variable = lam_T #lam_z
+    variable =  lam_z #temperature inversion, change to lam_T
     function = src_fuel_function
     block = 'fuel liner'
     execute_on = ADJOINT_TIMESTEP_END
@@ -243,25 +243,8 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
 []
 
 ##--------- Outputs ------------------#
-[VectorPostprocessors]
-  [disp_all]
-    type = NodalValueSampler
-    sort_by = id
-    boundary = front
-    variable = 'T'
-  []
-  [disp_top]
-    type = LineValueSampler
-    start_point = '0.0 12.7 0.7'
-    end_point = '101 12.7 0.7'
-    num_points = 20
-    sort_by = id
-    variable = 'T'
-  []
-[]
 
 [Outputs]
-  csv = true
   exodus = true
   execute_on = timestep_end
 []

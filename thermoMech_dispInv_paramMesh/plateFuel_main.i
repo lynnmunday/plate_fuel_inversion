@@ -15,8 +15,8 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
   file_xcoord = 'x'
   file_ycoord = 'y'
   file_zcoord = 'z'
-  file_value = 'temperature'
-  # file_variable_weights = 'weight'
+  file_value = 'weighted_disp_z' #'temperature'
+  file_variable_weights = 'weight'
   # tikhonov_coeff = 0.1
 []
 [Executioner]
@@ -35,18 +35,18 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
   # petsc_options_iname = '-tao_gatol -tao_grtol'
   # petsc_options_value = '1e-8 1e-16'
   #--gradient lmvm
-  tao_solver = taolmvm
-  petsc_options_iname = '-tao_max_it -tao_gttol -tao_grtol -tao_ls_type'# -tao_fd_gradient -tao_fd_delta'
-  petsc_options_value = '50           1e-5       1e-16      armijo'#       true             1e3'
+  # tao_solver = taolmvm
+  # petsc_options_iname = '-tao_max_it -tao_gttol -tao_grtol -tao_ls_type'# -tao_fd_gradient -tao_fd_delta'
+  # petsc_options_value = '50           1e-5       1e-16      armijo'#       true             1e3'
   ##--gradient cg
   # tao_solver = taobncg
   # petsc_options_iname = '-tao_max_it -tao_gatol -tao_grtol -tao_ls_type'
   # petsc_options_value = '50 1e-8 1e-16 unit'
   ##--finite difference testing
-  # tao_solver = taobncg
-  # petsc_options_iname = '-tao_max_it -tao_grtol -tao_ls_type -tao_fd_test -tao_test_gradient -tao_fd_gradient -tao_fd_delta'
-  # petsc_options_value = '1 1e-16 unit true true false 1e3'
-  # petsc_options = '-tao_test_gradient_view'
+  tao_solver = taobncg
+  petsc_options_iname = '-tao_max_it -tao_grtol -tao_ls_type -tao_fd_test -tao_test_gradient -tao_fd_gradient -tao_fd_delta'
+  petsc_options_value = '1 1e-16 unit true true false 1e3'
+  petsc_options = '-tao_test_gradient_view'
 []
 
 [MultiApps]
@@ -59,22 +59,23 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
 []
 
 [Transfers]
-  [toForward]
-    type = MultiAppReporterTransfer
-    to_multi_app = forward_adjoint
-    from_reporters = 'OptimizationReporter/measurement_xcoord
-                      OptimizationReporter/measurement_ycoord
-                      OptimizationReporter/measurement_zcoord
-                      OptimizationReporter/measurement_time
-                      OptimizationReporter/measurement_values
-                      OptimizationReporter/source_elem'
-    to_reporters = 'measure_data/measurement_xcoord
-                    measure_data/measurement_ycoord
-                    measure_data/measurement_zcoord
-                    measure_data/measurement_time
-                    measure_data/measurement_values
-                    params_fuel/source'
-  []
+  # this is for not using weights
+  # [toForward]
+  #   type = MultiAppReporterTransfer
+  #   to_multi_app = forward_adjoint
+  #   from_reporters = 'OptimizationReporter/measurement_xcoord
+  #                     OptimizationReporter/measurement_ycoord
+  #                     OptimizationReporter/measurement_zcoord
+  #                     OptimizationReporter/measurement_time
+  #                     OptimizationReporter/measurement_values
+  #                     OptimizationReporter/source_elem'
+  #   to_reporters = 'measure_data/measurement_xcoord
+  #                   measure_data/measurement_ycoord
+  #                   measure_data/measurement_zcoord
+  #                   measure_data/measurement_time
+  #                   measure_data/measurement_values
+  #                   params_fuel/source'
+  # []
 
   [fromForward]
     type = MultiAppReporterTransfer
@@ -85,24 +86,25 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
                     OptimizationReporter/grad_source_elem'
   []
 
-  # [toForward]
-  #   type = MultiAppReporterTransfer
-  #   to_multi_app = forward_adjoint
-  #   from_reporters = 'OptimizationReporter/measurement_xcoord
-  #                     OptimizationReporter/measurement_ycoord
-  #                     OptimizationReporter/measurement_zcoord
-  #                     OptimizationReporter/measurement_time
-  #                     OptimizationReporter/measurement_values
-  #                     OptimizationReporter/weight
-  #                     OptimizationReporter/source_elem'
-  #   to_reporters = 'measure_data/measurement_xcoord
-  #                   measure_data/measurement_ycoord
-  #                   measure_data/measurement_zcoord
-  #                   measure_data/measurement_time
-  #                   measure_data/measurement_values
-  #                   measure_data/weight
-  #                   params_fuel/source'
-  # []
+  #this is for using weights
+  [toForward]
+    type = MultiAppReporterTransfer
+    to_multi_app = forward_adjoint
+    from_reporters = 'OptimizationReporter/measurement_xcoord
+                      OptimizationReporter/measurement_ycoord
+                      OptimizationReporter/measurement_zcoord
+                      OptimizationReporter/measurement_time
+                      OptimizationReporter/measurement_values
+                      OptimizationReporter/weight
+                      OptimizationReporter/source_elem'
+    to_reporters = 'measure_data/measurement_xcoord
+                    measure_data/measurement_ycoord
+                    measure_data/measurement_zcoord
+                    measure_data/measurement_time
+                    measure_data/measurement_values
+                    measure_data/weight
+                    params_fuel/source'
+  []
 []
 
 [Reporters]
