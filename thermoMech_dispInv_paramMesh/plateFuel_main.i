@@ -32,21 +32,21 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
   #  petsc_options_value = '3 1e-8 1e-16 none stcg'
   ##--gradient bounded quasiNewtonKrylov Trust Region
   # tao_solver = taobqnktr
-  # petsc_options_iname = '-tao_gatol -tao_grtol'
-  # petsc_options_value = '1e-8 1e-16'
-  #--gradient lmvm
-  # tao_solver = taolmvm
-  # petsc_options_iname = '-tao_max_it -tao_gttol -tao_grtol -tao_ls_type'# -tao_fd_gradient -tao_fd_delta'
-  # petsc_options_value = '50           1e-5       1e-16      armijo'#       true             1e3'
+  # petsc_options_iname = '-tao_max_it -tao_gatol -tao_grtol -tao_trust0'
+  # petsc_options_value = '7 1e-8 1e-16 1e6'
+  ##--gradient lmvm
+  tao_solver = taolmvm
+  petsc_options_iname = '-tao_max_it -tao_gttol -tao_grtol -tao_ls_type'# -tao_fd_gradient -tao_fd_delta'
+  petsc_options_value = '10         1e-4       1e-16      unit'#       true             1e3'
   ##--gradient cg
   # tao_solver = taobncg
   # petsc_options_iname = '-tao_max_it -tao_gatol -tao_grtol -tao_ls_type'
   # petsc_options_value = '50 1e-8 1e-16 unit'
   ##--finite difference testing
-  tao_solver = taobncg
-  petsc_options_iname = '-tao_max_it -tao_grtol -tao_ls_type -tao_fd_test -tao_test_gradient -tao_fd_gradient -tao_fd_delta'
-  petsc_options_value = '1 1e-16 unit true true false 1e3'
-  petsc_options = '-tao_test_gradient_view'
+  # tao_solver = taobncg
+  # petsc_options_iname = '-tao_max_it -tao_grtol -tao_ls_type -tao_fd_test -tao_test_gradient -tao_fd_gradient -tao_fd_delta'
+  # petsc_options_value = '1 1e-16 unit true true false 1e3'
+  # petsc_options = '-tao_test_gradient_view'
 []
 
 [MultiApps]

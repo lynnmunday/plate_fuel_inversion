@@ -22,20 +22,23 @@ parameter_mesh_size = 1x1x1
 [Variables]
   [T]
   []
-  [u_x]
-  []
-  [u_y]
-  []
-  [u_z]
-  []
   [lam_T]
     nl_sys = adjoint
+  []
+
+  [u_x]
   []
   [lam_x]
     nl_sys = adjoint
   []
+
+  [u_y]
+  []
   [lam_y]
     nl_sys = adjoint
+  []
+
+  [u_z]
   []
   [lam_z]
     nl_sys = adjoint
@@ -179,11 +182,11 @@ parameter_mesh_size = 1x1x1
 
   line_search = 'none'
 
-  nl_rel_tol = 1e-6
+  nl_rel_tol = 1e-8
   nl_abs_tol = 1e-30
   nl_max_its = 10
 
-  # l_tol = 1e-4
+  l_tol = 1e-8
   l_max_its = 10
 []
 
@@ -208,6 +211,14 @@ parameter_mesh_size = 1x1x1
     real_vector_names = 'source'
     real_vector_values = '0' # Dummy
   []
+  [dummy_data]
+    type = ConstantReporter
+    real_vector_names = 'coordx coordy coordz value'
+    real_vector_values = '0;
+                          0;
+                          0;
+                          0'
+  []
 []
 measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/syntheticData'
 [Functions]
@@ -223,7 +234,31 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
 [DiracKernels]
   [adjointLoad_T]
     type = ReporterPointSource
-    variable = lam_z #temperature inversion, change to lam_T
+    variable = lam_T #temperature inversion, change to lam_T
+    x_coord_name = dummy_data/coordx
+    y_coord_name = dummy_data/coordy
+    z_coord_name = dummy_data/coordz
+    value_name = dummy_data/value
+  []
+  [adjointLoad_ux]
+    type = ReporterPointSource
+    variable = lam_x
+    x_coord_name = dummy_data/coordx
+    y_coord_name = dummy_data/coordy
+    z_coord_name = dummy_data/coordz
+    value_name = dummy_data/value
+  []
+  [adjointLoad_uy]
+    type = ReporterPointSource
+    variable = lam_y
+    x_coord_name = dummy_data/coordx
+    y_coord_name = dummy_data/coordy
+    z_coord_name = dummy_data/coordz
+    value_name = dummy_data/value
+  []
+  [adjointLoad_uz]
+    type = ReporterPointSource
+    variable = lam_z
     x_coord_name = measure_data/measurement_xcoord
     y_coord_name = measure_data/measurement_ycoord
     z_coord_name = measure_data/measurement_zcoord
@@ -235,7 +270,7 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
 [VectorPostprocessors]
   [grad_src_fuel]
     type = ElementOptimizationSourceFunctionInnerProduct
-    variable =  lam_z #temperature inversion, change to lam_T
+    variable =  lam_T
     function = src_fuel_function
     block = 'fuel liner'
     execute_on = ADJOINT_TIMESTEP_END
