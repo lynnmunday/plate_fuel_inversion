@@ -1,18 +1,18 @@
-output_name = 'mesh_4x2x1'
+output_name = 'mesh_1x1x1'
 [Mesh]
   [gmg]
     #fuel and liner
     type = GeneratedMeshGenerator
     dim = 3
-    nx = 4
-    ny = 2
+    nx = 20
+    ny = 3
     nz = 1
-    xmin = 9.4615
-    xmax = 92.0115
-    ymin = 3.175
-    ymax = 22.225
-    zmin = 0.489
-    zmax = 0.755
+    xmin = 9.46   #9.4615
+    xmax = 92.02  #92.0115
+    ymin = 3.17   #3.175
+    ymax = 22.23  #22.225
+    zmin = 0.48   #0.489
+    zmax = 0.76   #0.755
   []
   second_order = false
   parallel_type = REPLICATED

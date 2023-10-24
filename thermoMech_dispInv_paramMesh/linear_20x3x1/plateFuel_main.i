@@ -3,13 +3,13 @@ parameter_mesh_size = 20x3x1
 [Optimization]
 []
 
-measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/syntheticData/'
+measurementDir = '../../syntheticData/'
 [OptimizationReporter]
   type = ParameterMeshOptimization
   parameter_names = 'source_elem'
   parameter_meshes = '${measurementDir}/mesh_${parameter_mesh_size}.e'
-  parameter_families = 'MONOMIAL'
-  parameter_orders = 'CONSTANT'
+  parameter_families = 'LAGRANGE'
+  parameter_orders = 'FIRST'
   measurement_file = '${measurementDir}/results_func_disp_all_0001.csv'
   # constant_group_initial_condition = 5e10
   file_xcoord = 'x'
@@ -37,7 +37,7 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
   ##--gradient lmvm
   tao_solver = taolmvm
   petsc_options_iname = '-tao_max_it -tao_gttol -tao_grtol -tao_ls_type'# -tao_fd_gradient -tao_fd_delta'
-  petsc_options_value = '50         1e-4       1e-16      unit ' #armijo#       true             1e3'
+  petsc_options_value = '500         1e-6       1e-16      unit ' #armijo#       true             1e3'
   ##--gradient cg
   # tao_solver = taobncg
   # petsc_options_iname = '-tao_max_it -tao_gatol -tao_grtol -tao_ls_type'

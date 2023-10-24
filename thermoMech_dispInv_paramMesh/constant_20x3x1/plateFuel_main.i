@@ -3,14 +3,13 @@ parameter_mesh_size = 20x3x1
 [Optimization]
 []
 
-measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/syntheticData/'
 [OptimizationReporter]
   type = ParameterMeshOptimization
   parameter_names = 'source_elem'
-  parameter_meshes = '${measurementDir}/mesh_${parameter_mesh_size}.e'
+  parameter_meshes = '../../syntheticData/mesh_${parameter_mesh_size}.e'
   parameter_families = 'MONOMIAL'
   parameter_orders = 'CONSTANT'
-  measurement_file = '${measurementDir}/results_func_disp_all_0001.csv'
+  measurement_file = '../../syntheticData/results_func_disp_all_0001.csv'
   # constant_group_initial_condition = 5e10
   file_xcoord = 'x'
   file_ycoord = 'y'
@@ -36,8 +35,8 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
   # petsc_options_value = '7 1e-8 1e-16 1e6'
   ##--gradient lmvm
   tao_solver = taolmvm
-  petsc_options_iname = '-tao_max_it -tao_gttol -tao_grtol -tao_ls_type'# -tao_fd_gradient -tao_fd_delta'
-  petsc_options_value = '50         1e-4       1e-16      unit ' #armijo#       true             1e3'
+  petsc_options_iname = '-tao_max_it -tao_gttol -tao_grtol -tao_ls_type' # -tao_fd_gradient -tao_fd_delta'
+  petsc_options_value = '100         1e-4       1e-16      unit ' #armijo#       true             1e3'
   ##--gradient cg
   # tao_solver = taobncg
   # petsc_options_iname = '-tao_max_it -tao_gatol -tao_grtol -tao_ls_type'
@@ -59,24 +58,6 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
 []
 
 [Transfers]
-  # this is for not using weights
-  # [toForward]
-  #   type = MultiAppReporterTransfer
-  #   to_multi_app = forward_adjoint
-  #   from_reporters = 'OptimizationReporter/measurement_xcoord
-  #                     OptimizationReporter/measurement_ycoord
-  #                     OptimizationReporter/measurement_zcoord
-  #                     OptimizationReporter/measurement_time
-  #                     OptimizationReporter/measurement_values
-  #                     OptimizationReporter/source_elem'
-  #   to_reporters = 'measure_data/measurement_xcoord
-  #                   measure_data/measurement_ycoord
-  #                   measure_data/measurement_zcoord
-  #                   measure_data/measurement_time
-  #                   measure_data/measurement_values
-  #                   params_fuel/source'
-  # []
-
   [fromForward]
     type = MultiAppReporterTransfer
     from_multi_app = forward_adjoint
@@ -86,7 +67,6 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
                     OptimizationReporter/grad_source_elem'
   []
 
-  #this is for using weights
   [toForward]
     type = MultiAppReporterTransfer
     to_multi_app = forward_adjoint
@@ -114,7 +94,78 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
   []
 []
 
+##--------- output parameter for transfer---------#
+[Mesh]
+  [restart_mesh]
+    type = FileMeshGenerator
+    file = '../../syntheticData/mesh_${parameter_mesh_size}.e'
+  []
+[]
+
+[AuxVariables]
+  [source_exact]
+    order = CONSTANT
+    family = MONOMIAL
+  []
+  [source]
+    order = CONSTANT
+    family = MONOMIAL
+  []
+  [disp_x]
+  []
+  [disp_y]
+  []
+  [disp_z]
+  []
+[]
+
+[AuxKernels]
+  [source_exact]
+    type = FunctionAux
+    variable = source_exact
+    function = src_fuel_function
+  []
+[]
+
+[Functions]
+  [src_fuel_function]
+    type = ParameterMeshFunction
+    family = MONOMIAL
+    order = CONSTANT
+    exodus_mesh = '../../syntheticData/mesh_${parameter_mesh_size}.e'
+    parameter_name = OptimizationReporter/source_elem
+  []
+[]
+
+[Transfers]
+  [fromForward_source_parameter]
+    type = MultiAppGeneralFieldShapeEvaluationTransfer
+    from_multi_app = forward_adjoint
+    source_variable = source
+    variable = source
+  []
+  [fromForward_disp_x_parameter]
+    type = MultiAppGeneralFieldShapeEvaluationTransfer
+    from_multi_app = forward_adjoint
+    source_variable = disp_x
+    variable = disp_x
+  []
+  [fromForward_disp_y_parameter]
+    type = MultiAppGeneralFieldShapeEvaluationTransfer
+    from_multi_app = forward_adjoint
+    source_variable = disp_y
+    variable = disp_y
+  []
+  [fromForward_disp_z_parameter]
+    type = MultiAppGeneralFieldShapeEvaluationTransfer
+    from_multi_app = forward_adjoint
+    source_variable = disp_z
+    variable = disp_z
+  []
+[]
+
 [Outputs]
+  exodus = true
   csv = true
   console = true
 []

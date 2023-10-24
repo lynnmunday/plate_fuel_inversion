@@ -1,7 +1,6 @@
 #
 # Plate fuel example problem.
 #
-
 [GlobalParams]
   order = FIRST
   family = LAGRANGE
@@ -51,6 +50,7 @@
   #   coord = '101.473 25.4 0'
   #   new_boundary = 'right_top_back'
   # []
+
 []
 
 [Problem]
@@ -69,9 +69,9 @@
     order = FIRST
     family = LAGRANGE
   []
-  [l2ar]
-    order = CONSTANT
-    family = MONOMIAL
+  [source]
+    order = FIRST
+    family = LAGRANGE
   []
 []
 [AuxKernels]
@@ -89,42 +89,23 @@
     vector_tag = flux_tag
     execute_on = timestep_end
   []
-  [l2ar]
-    type = ParsedAux
-    variable = l2ar
-    use_xyzt = true
-    constant_names = 'x_offset y_offset'
-    constant_expressions = '9.4615e-3 3.175e-3'
-    expression = 'x0 := x-x_offset;
-             y0 := y-y_offset;
-             (4.669e-10*x0^5 - 8.657e-8*x0^4 + 5.877e-6*x0^3 - 0.0001962*x0^2 + 0.004373*x0 + 0.9446) * (5.047e-7*y0^6 - 2.974e-05*y0^5 + 0.0006881*y0^4 - 0.007883*y0^3 + 0.04726*y0^2 - 0.1458*y0 + 1.152)'
+  [source]
+    type = FunctionAux
+    variable = source
+    function = src_func
+    block = 'fuel liner'
   []
 []
 
 [Functions]
-  [power_density]
-    type = ConstantFunction
-    value = 40e6 # first timestep from POWER_DENSITY.csv
-  []
-  [L2AR]
+  [src_func]
     type = ParsedFunction
-    expression = 1.0
-    # fissprof_l2ar is the distribution from the L2AR tab: L2AR_ABAQUS at cell R64
-    # symbol_names = 'x_offset y_offset'
-    # symbol_values = '9.4615e-3 3.175e-3'
-    # expression = 'x0 := x-x_offset;
-    #          y0 := y-y_offset;
-    #          (4.669e-10*x0^5 - 8.657e-8*x0^4 + 5.877e-6*x0^3 - 0.0001962*x0^2 + 0.004373*x0 + 0.9446) * (5.047e-7*y0^6 - 2.974e-05*y0^5 + 0.0006881*y0^4 - 0.007883*y0^3 + 0.04726*y0^2 - 0.1458*y0 + 1.152)'
-  []
-  [power_history]
-    type = CompositeFunction
-    functions = 'power_density L2AR'
+    expression = 'x*y*80e3'
   []
 []
 
 [Variables]
   [temperature]
-    initial_condition = 400
   []
   [disp_x]
   []
@@ -135,16 +116,17 @@
 []
 
 [Kernels]
-  [heat]
-    type = HeatConduction
+  [heat_conduction]
+    type = ADMatDiffusion
     variable = temperature
+    diffusivity = thermal_conductivity
   []
   [heat_source]
-    type = HeatSource
-    block = fuel
-    function = power_history
+    type = ADBodyForce
+    function = src_func
     variable = temperature
     extra_vector_tags = 'ref heatSource_tag'
+    block = 'fuel liner'
   []
 []
 
@@ -155,12 +137,13 @@
     generate_output = 'stress_xx stress_yy stress_zz vonmises_stress'
     eigenstrain_names = 'eigenstrain'
     extra_vector_tags = 'ref'
+    use_automatic_differentiation = true
   []
 []
 
 [BCs]
   [conv_BC_front]
-    type = ConvectiveHeatFluxBC
+    type = ADConvectiveHeatFluxBC
     variable = temperature
     boundary = front
     T_infinity = 355
@@ -168,27 +151,27 @@
     extra_vector_tags = 'flux_tag'
   []
   [conv_BC_back]
-    type = ConvectiveHeatFluxBC
+    type = ADConvectiveHeatFluxBC
     variable = temperature
     boundary = back
-    T_infinity = 325 # film temperature
+    T_infinity = 325
     heat_transfer_coefficient = 40000
     extra_vector_tags = 'flux_tag'
   []
   [disp_x]
-    type = DirichletBC
+    type = ADDirichletBC
     variable = disp_x
     boundary = 'left_bottom_back'
     value = 0.0
   []
   [disp_y]
-    type = DirichletBC
+    type = ADDirichletBC
     variable = disp_y
     boundary = 'left_bottom_back right_bottom_back'
     value = 0.0
   []
   [disp_z]
-    type = DirichletBC
+    type = ADDirichletBC
     variable = disp_z
     boundary = 'left_bottom_back right_bottom_back right_top_back'
     value = 0.0
@@ -198,18 +181,19 @@
 [Materials]
   # fuel properties
   [fuel_thermal]
-    type = HeatConductionMaterial
+    type = ADGenericConstantMaterial
+    prop_names = thermal_conductivity
+    prop_values = 17.6e3
     block = 'fuel liner'
-    thermal_conductivity = 17.6e3
   []
   [fuel_elasticity]
-    type = ComputeIsotropicElasticityTensor
+    type = ADComputeIsotropicElasticityTensor
     youngs_modulus = 90e3
     poissons_ratio = 0.35
     block = 'fuel liner'
   []
   [fuel_thermal_expansion]
-    type = ComputeThermalExpansionEigenstrain
+    type = ADComputeThermalExpansionEigenstrain
     temperature = temperature
     thermal_expansion_coeff = 15e-6 #U10MoThermalExpansionEigenstrain - Burkes  T=300
     stress_free_temperature = 294
@@ -217,23 +201,24 @@
     block = 'fuel liner'
   []
   [fuel_stress]
-    type = ComputeLinearElasticStress
+    type = ADComputeLinearElasticStress
     block = 'fuel liner'
   []
   # cladding properties
   [clad_thermal]
-    type = HeatConductionMaterial
-    block = cladding
-    thermal_conductivity = 175e3
+    type = ADGenericConstantMaterial
+    prop_names = thermal_conductivity
+    prop_values = 175e3
+    block = 'cladding'
   []
   [clad_elasticity]
-    type = ComputeIsotropicElasticityTensor
+    type = ADComputeIsotropicElasticityTensor
     youngs_modulus = 69e3
     poissons_ratio = 0.33
     block = cladding
   []
   [clad_thermal_expansion]
-    type = ComputeThermalExpansionEigenstrain
+    type = ADComputeThermalExpansionEigenstrain
     temperature = temperature
     thermal_expansion_coeff = 25.1e-6 #Al6061ThermalExpansionEigenstrain T=300
     stress_free_temperature = 295
@@ -241,7 +226,7 @@
     block = cladding
   []
   [clad_stress]
-    type = ComputeLinearElasticStress
+    type = ADComputeLinearElasticStress
     block = cladding
   []
 []
@@ -257,8 +242,6 @@
   type = Steady
   solve_type = 'Newton'
 
-  # petsc_options_iname = '-ksp_gmres_restart -pc_type -pc_hypre_type -pc_hypre_boomeramg_max_iter'
-  # petsc_options_value = '201                hypre    boomeramg      4'
   petsc_options_iname = '-pc_type -pc_factor_mat_solver_package'
   petsc_options_value = 'lu superlu_dist'
 
@@ -281,8 +264,46 @@
   []
 []
 
+#--------- Output synthetic measurement data
+[AuxVariables]
+  [weighted_disp_z]
+    family = LAGRANGE
+    order = FIRST
+  []
+  [weight]
+    family = LAGRANGE
+    order = FIRST
+    initial_condition = 1e3
+  []
+[]
+[AuxKernels]
+  [weighted_disp_z]
+    type = ParsedAux
+    expression = disp_z*1e3
+    variable = weighted_disp_z
+    coupled_variables = disp_z
+  []
+[]
+
+[VectorPostprocessors]
+  [disp_all]
+    type = NodalValueSampler
+    sort_by = id
+    boundary = front
+    variable = 'disp_x disp_y disp_z temperature weighted_disp_z weight'
+  []
+  [disp_top]
+    type = LineValueSampler
+    start_point = '0.0 12.7 0.7'
+    end_point = '101 12.7 0.7'
+    num_points = 20
+    sort_by = id
+    variable = 'disp_x disp_y disp_z temperature weighted_disp_z weight'
+  []
+[]
+
 [Outputs]
-  perf_graph = true
+  file_base = results_func
   csv = true
   exodus = true
 []

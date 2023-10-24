@@ -1,7 +1,7 @@
 #
 # Plate fuel example problem.
 #
-mesh_size='1x1x1'
+mesh_size = '20x5x1'
 
 [GlobalParams]
   order = FIRST
@@ -34,6 +34,10 @@ mesh_size='1x1x1'
     order = FIRST
     family = LAGRANGE
   []
+  [source]
+    order = FIRST
+    family = LAGRANGE
+  []
 []
 [AuxKernels]
   [heatSource]
@@ -50,9 +54,16 @@ mesh_size='1x1x1'
     vector_tag = flux_tag
     execute_on = timestep_end
   []
+  [source]
+    type = FunctionAux
+    variable = source
+    function = src_func
+    block = 'fuel liner'
+  []
 []
 
-#---------- create these csv and exodus files by running parameter_mesh_steady.i
+#----- PARAMETER MESH INPUT
+#----- create these csv and exodus files by running parameter_mesh_mm_steady.i
 [Functions]
   [src_func]
     type = ParameterMeshFunction
@@ -234,11 +245,11 @@ mesh_size='1x1x1'
 [AuxVariables]
   [weighted_disp_z]
     family = LAGRANGE
-    order =FIRST
+    order = FIRST
   []
   [weight]
     family = LAGRANGE
-    order =FIRST
+    order = FIRST
     initial_condition = 1e3
   []
 []

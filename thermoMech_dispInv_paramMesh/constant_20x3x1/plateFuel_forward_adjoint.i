@@ -1,12 +1,5 @@
 parameter_mesh_size = 1x1x1
 
-# [GlobalParams]
-#   order = FIRST
-#   family = LAGRANGE
-#   displacements = 'disp_x disp_y disp_z'
-#   volumetric_locking_correction = false
-# []
-
 [Problem]
   nl_sys_names = 'nl0 adjoint'
   kernel_coverage_check = false
@@ -15,7 +8,7 @@ parameter_mesh_size = 1x1x1
 [Mesh]
   [read_plate_mesh]
     type = FileMeshGenerator
-    file = ../syntheticData/plate_steady_mm_in.e
+    file = ../../syntheticData/plate_steady_mm_in.e
   []
 []
 
@@ -64,7 +57,6 @@ parameter_mesh_size = 1x1x1
   [all]
     strain = SMALL
     temperature = T
-    # generate_output = 'stress_xx stress_yy stress_zz vonmises_stress'
     eigenstrain_names = 'eigenstrain'
     use_automatic_differentiation = true
     displacements = 'disp_x disp_y disp_z'
@@ -179,7 +171,6 @@ parameter_mesh_size = 1x1x1
   # off_diagonals_in_auto_scaling = true
   # compute_scaling_once = false
 
-
   line_search = 'none'
 
   nl_rel_tol = 1e-8
@@ -196,6 +187,7 @@ parameter_mesh_size = 1x1x1
     block = fuel
     variable = T
     execute_on = 'timestep_end'
+    outputs = none
   []
 []
 
@@ -203,59 +195,28 @@ parameter_mesh_size = 1x1x1
 [Reporters]
   [measure_data]
     type = OptimizationData
-    variable = 'disp_z'#temperature inversion, change to T
-    variable_weight_names = weight #remove for T
+    variable = 'disp_z'
+    variable_weight_names = weight
+    outputs = none
   []
   [params_fuel]
     type = ConstantReporter
     real_vector_names = 'source'
     real_vector_values = '0' # Dummy
   []
-  [dummy_data]
-    type = ConstantReporter
-    real_vector_names = 'coordx coordy coordz value'
-    real_vector_values = '0;
-                          0;
-                          0;
-                          0'
-  []
 []
-measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/syntheticData'
+
 [Functions]
   [src_fuel_function]
     type = ParameterMeshFunction
     family = MONOMIAL
     order = CONSTANT
-    exodus_mesh = '${measurementDir}/mesh_${parameter_mesh_size}.e'
+    exodus_mesh = '../../syntheticData/mesh_${parameter_mesh_size}.e'
     parameter_name = params_fuel/source
   []
 []
 ##---------Adjoint Optimization stuff------------------#
 [DiracKernels]
-  [adjointLoad_T]
-    type = ReporterPointSource
-    variable = lam_T #temperature inversion, change to lam_T
-    x_coord_name = dummy_data/coordx
-    y_coord_name = dummy_data/coordy
-    z_coord_name = dummy_data/coordz
-    value_name = dummy_data/value
-  []
-  [adjointLoad_ux]
-    type = ReporterPointSource
-    variable = lam_x
-    x_coord_name = dummy_data/coordx
-    y_coord_name = dummy_data/coordy
-    z_coord_name = dummy_data/coordz
-    value_name = dummy_data/value
-  []
-  [adjointLoad_uy]
-    type = ReporterPointSource
-    variable = lam_y
-    x_coord_name = dummy_data/coordx
-    y_coord_name = dummy_data/coordy
-    z_coord_name = dummy_data/coordz
-    value_name = dummy_data/value
-  []
   [adjointLoad_uz]
     type = ReporterPointSource
     variable = lam_z
@@ -263,25 +224,77 @@ measurementDir = '/Users/mundlb/projects/isopod_inputs/plate_fuel_inversion/synt
     y_coord_name = measure_data/measurement_ycoord
     z_coord_name = measure_data/measurement_zcoord
     value_name = measure_data/misfit_values
-    weight_name = measure_data/weight #remove for T
+    weight_name = measure_data/weight
   []
 []
 
 [VectorPostprocessors]
   [grad_src_fuel]
     type = ElementOptimizationSourceFunctionInnerProduct
-    variable =  lam_T
+    variable = lam_T
     function = src_fuel_function
     block = 'fuel liner'
     execute_on = ADJOINT_TIMESTEP_END
+    outputs = none
+  []
+[]
+
+##--------- output parameter for transfer---------#
+[AuxKernels]
+  [source]
+    type = FunctionAux
+    variable = source
+    function = src_fuel_function
+    block = 'fuel liner'
+  []
+[]
+[AuxVariables]
+  [source]
+    order = CONSTANT
+    family = MONOMIAL
   []
 []
 
 ##--------- Outputs ------------------#
+[VectorPostprocessors]
+  [disp_center_top]
+    type = LineValueSampler
+    start_point = '0.0 12.7 1.244'
+    end_point = '101 12.7 1.244'
+    num_points = 50
+    sort_by = id
+    variable = 'disp_z'
+  []
+  [disp_diag_top]
+    type = LineValueSampler
+    start_point = '0.0 0.0 1.244'
+    end_point = '101 12.7 1.244'
+    num_points = 50
+    sort_by = id
+    variable = 'disp_z'
+  []
+  [T_center_mid]
+    type = LineValueSampler
+    start_point = '0.0 0.0 0.622'
+    end_point = '101 12.7 0.622'
+    num_points = 50
+    sort_by = id
+    variable = 'T'
+  []
+  [T_diag_mid]
+    type = LineValueSampler
+    start_point = '0.0 0.0 0.622'
+    end_point = '101 12.7 0.622'
+    num_points = 50
+    sort_by = id
+    variable = 'T'
+  []
+[]
 
 [Outputs]
   exodus = true
   execute_on = timestep_end
+  csv = true
 []
 
 [Debug]
